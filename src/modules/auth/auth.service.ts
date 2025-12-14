@@ -12,6 +12,7 @@ import { CreateUserInput } from '../user/dto/create-user.input';
 import { UserService } from '../user/users.service';
 import { User } from 'libs/model/entities/user.entity';
 import { TokenDto } from './dto/token.dto';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private usersService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private tokenBlacklistService: TokenBlacklistService,
   ) { }
 
   async login(loginDto: LoginInput) {
@@ -63,9 +65,21 @@ export class AuthService {
     return userResult;
   }
 
-  async logout(user: User) {
-    // In a real app, you might want to add the token to a blacklist
-    return { message: 'Successfully logged out' };
+  async logout(token: string): Promise<{ message: string }> {
+    try {
+      const decoded = await this.jwtService.verifyAsync(token.replace('Bearer ', ''), {
+        secret: this.configService.JWT_SECRET,
+      });
+
+      const now = Math.floor(Date.now() / 1000);
+      const expiresIn = decoded.exp - now;
+
+      if (expiresIn > 0) await this.tokenBlacklistService.addToBlacklist(token, expiresIn);
+
+      return { message: 'Successfully logged out' };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   private async getTokens(user: User) {

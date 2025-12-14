@@ -5,7 +5,10 @@ import {
     HttpCode,
     HttpStatus,
     UseGuards,
+    Req,
+    UnauthorizedException,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserInput } from '../user/dto/create-user.input';
@@ -42,7 +45,9 @@ export class AuthController {
     @Post('logout')
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
-    async logout(@CurrentUser() currentUser: { user: User }) {
-        return this.authService.logout(currentUser.user);
+    async logout(@Req() request: Request) {
+        const token = request.headers.authorization;
+        if (!token) throw new UnauthorizedException('No token provided');
+        return this.authService.logout(token);
     }
 }

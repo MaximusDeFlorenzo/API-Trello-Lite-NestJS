@@ -5,13 +5,14 @@ import {
   HttpStatus,
   Injectable,
   SetMetadata,
-} from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
-import { Reflector } from "@nestjs/core";
-import { AuthService } from "./auth.service";
-import { TokenDto } from "./dto/token.dto";
-import { User } from "libs/model/entities/user.entity";
-import { UserService } from "../user/users.service";
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Reflector } from '@nestjs/core';
+import { AuthService } from './auth.service';
+import { TokenDto } from './dto/token.dto';
+import { UserService } from '../user/users.service';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 const IS_PUBLIC_KEY = "isPublic";
 export const Public = (): CustomDecorator => SetMetadata(IS_PUBLIC_KEY, true);
@@ -22,6 +23,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     private readonly authService: AuthService,
     private readonly reflector: Reflector,
     private readonly usersService: UserService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {
     super();
   }
@@ -45,7 +47,13 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     }
 
     try {
-      const cleanToken = token.replace(/^Bearer\s+/i, "");
+      const cleanToken = token.replace(/^Bearer\s+/i, '');
+
+      const isBlacklisted = await this.tokenBlacklistService.isTokenBlacklisted(cleanToken);
+      if (isBlacklisted) {
+        throw new UnauthorizedException('Token has been revoked');
+      }
+
       const tokenData: TokenDto = await this.authService.verify(cleanToken);
 
       if (!tokenData) {
