@@ -56,9 +56,6 @@ export class User {
   @OneToMany(() => Task, task => task.deletedBy)
   deletedTasks: Task[];
 
-  @OneToMany(() => Member, member => member.user)
-  memberships: Member[];
-
   toJSON() {
     const { password, ...rest } = this;
     return rest;

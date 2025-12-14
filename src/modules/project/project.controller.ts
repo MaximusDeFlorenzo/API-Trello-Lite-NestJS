@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ListProjectInput } from './dto/list-project.input';
 import { UpdateProjectInput } from './dto/update-project.input';
 import { CreateProjectInput } from './dto/create-project.input';
+import { ProjectAdminGuard } from './guards/project-admin.guard';
 
 @Controller('project')
 @UseGuards(JwtAuthGuard)
@@ -47,7 +48,7 @@ export class ProjectController {
     }
 
     @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(ProjectAdminGuard)
     @HttpCode(HttpStatus.OK)
     async update(
         @Param('id') id: string,
@@ -58,7 +59,7 @@ export class ProjectController {
     }
 
     @Patch(':id/toggle-active')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(ProjectAdminGuard)
     @HttpCode(HttpStatus.OK)
     async toggleActive(
         @Param('id') id: string,

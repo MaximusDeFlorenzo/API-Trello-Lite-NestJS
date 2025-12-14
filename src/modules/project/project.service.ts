@@ -11,7 +11,6 @@ import { CreateProjectInput } from './dto/create-project.input';
 import { UpdateProjectInput } from './dto/update-project.input';
 import { ListProjectInput } from './dto/list-project.input';
 import { ListProjectResponse } from './dto/list-project.dto';
-import { FindOptionsWhere, ILike } from 'typeorm';
 import { User } from 'libs/model/entities';
 import { ToggleResponses } from 'src/common/decorators/toggle.response';
 
