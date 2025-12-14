@@ -21,6 +21,8 @@ export class CreateTasksTable1765705400000 implements MigrationInterface {
                 \`statusId\` varchar(36) NULL,
                 \`projectId\` varchar(36) NULL,
                 \`assigneeId\` varchar(36) NULL,
+                \`is_migration\` tinyint NOT NULL DEFAULT 0,
+                \`migrated_at\` datetime(6) NULL,
                 PRIMARY KEY (\`id\`),
                 UNIQUE INDEX \`uk_tasks_code\` (\`code\`),
                 CONSTRAINT \`FK_tasks_status\` FOREIGN KEY (\`statusId\`) REFERENCES \`statuses\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION,

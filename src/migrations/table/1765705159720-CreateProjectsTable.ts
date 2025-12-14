@@ -15,6 +15,8 @@ export class CreateProjectsTable1765705159720 implements MigrationInterface {
                 \`updatedAt\` datetime(6) NULL,
                 \`updatedById\` varchar(36) NULL,
                 \`deletedAt\` datetime(6) NULL,
+                \`is_migration\` tinyint NOT NULL DEFAULT 0,
+                \`migrated_at\` datetime(6) NULL,
                 \`deletedById\` varchar(36) NULL,
                 PRIMARY KEY (\`id\`),
                 UNIQUE INDEX \`uk_projects_name\` (\`name\`),

@@ -18,6 +18,8 @@ export class CreateStatusesTable1765705200000 implements MigrationInterface {
                 \`deletedAt\` datetime(6) NULL,
                 \`deletedById\` varchar(36) NULL,
                 \`projectId\` varchar(36) NULL,
+                \`is_migration\` tinyint NOT NULL DEFAULT 0,
+                \`migrated_at\` datetime(6) NULL,
                 PRIMARY KEY (\`id\`),
                 UNIQUE INDEX \`uk_statuses_name\` (\`name\`),
                 CONSTRAINT \`FK_statuses_created_by\` FOREIGN KEY (\`createdById\`) REFERENCES \`users\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION,

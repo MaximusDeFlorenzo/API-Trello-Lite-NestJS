@@ -17,6 +17,8 @@ export class CreateMembersTable1765705500000 implements MigrationInterface {
                 \`createdById\` varchar(36) NOT NULL,
                 \`updatedById\` varchar(36) NULL,
                 \`deletedById\` varchar(36) NULL,
+                \`is_migration\` tinyint NOT NULL DEFAULT 0,
+                \`migrated_at\` datetime(6) NULL,
                 PRIMARY KEY (\`id\`),
                 UNIQUE INDEX \`uk_members_user_project\` (\`userId\`, \`projectId\`),
                 CONSTRAINT \`FK_members_user\` FOREIGN KEY (\`userId\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION,

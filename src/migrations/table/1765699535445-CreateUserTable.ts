@@ -15,6 +15,8 @@ export class InitialMigration1765699535445 implements MigrationInterface {
                 \`updatedAt\` datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
                 \`deletedAt\` datetime(6) NULL,
                 \`is_active\` tinyint NOT NULL DEFAULT 1,
+                \`is_migration\` tinyint NOT NULL DEFAULT 0,
+                \`migrated_at\` datetime(6) NULL,
                 PRIMARY KEY (\`id\`),
                 UNIQUE INDEX \`IDX_97672ac88f789774dd47f7c8be\` (\`email\`),
                 UNIQUE INDEX \`IDX_fe0bb3f6520ee0469504521e71\` (\`username\`)

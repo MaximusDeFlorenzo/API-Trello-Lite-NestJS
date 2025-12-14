@@ -10,7 +10,7 @@ export const dataSourceOptions: DataSourceOptions = {
     username: configService.get('DB_USERNAME', 'root'),
     password: configService.get('DB_PASSWORD', ''),
     database: configService.get('DB_DATABASE', 'trelo_nestjs'),
-    migrations: ['src/migrations/data/*.ts'],
+    migrations: ['src/migrations/table/*.ts'],
     synchronize: false,
     logging: true,
 };
