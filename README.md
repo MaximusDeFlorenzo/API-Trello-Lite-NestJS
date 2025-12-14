@@ -93,6 +93,10 @@ A RESTful API for a Trello-like project management application built with NodeJS
    npx typeorm-ts-node-commonjs migration:revert -d src/data-source.ts
    ```
 
+## Migration Plan
+
+The Migration data is being mark as using is_migration = true on each table, this make it possible to revert the migration.
+
 ## API Documentation
 
 The API documentation is available at `https://ez5555.postman.co/workspace/Personal~32cdb27e-3f1d-4e16-9908-1d289dcc7313/collection/26937832-96a3b737-ea51-4e69-82f2-670051acab58?action=share&creator=26937832` after setting up the application.
