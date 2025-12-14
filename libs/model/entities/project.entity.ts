@@ -1,5 +1,4 @@
-import { Exclude } from 'class-transformer';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Status } from './status.entity';
 import { Task } from './task.entity';
@@ -23,18 +22,21 @@ export class Project {
     createdAt: Date;
 
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'createdBy' })
     createdBy: User;
 
     @UpdateDateColumn({ name: 'updatedAt', nullable: true })
     updatedAt: Date;
 
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'updatedBy' })
     updatedBy: User;
 
     @DeleteDateColumn({ name: 'deletedAt', nullable: true })
     deletedAt: Date;
 
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'deletedBy' })
     deletedBy: User;
 
     // Relations

@@ -18,11 +18,11 @@ import { ListUserInput } from './dto/list-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 
 @Controller('user')
+@UseGuards(JwtAuthGuard)
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Get('list')
-    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async list(
         @CurrentUser() currentUser: User,
@@ -32,7 +32,6 @@ export class UserController {
     }
 
     @Get(':id')
-    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async findOne(
         @Param('id') id: string
@@ -41,7 +40,6 @@ export class UserController {
     }
 
     @Patch(':id')
-    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async update(
         @Param('id') id: string,
@@ -51,7 +49,6 @@ export class UserController {
     }
 
     @Patch(':id/toggle-active')
-    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async toggleActive(
         @Param('id') id: string

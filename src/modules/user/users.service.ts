@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -66,7 +67,9 @@ export class UserService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
+
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+    if (user.id !== id) throw new ForbiddenException('You are not allowed to access this resource');
 
     return user;
   }
@@ -84,18 +87,27 @@ export class UserService {
     updateUserDto: UpdateUserInput,
   ): Promise<User> {
     const user = await this.findOne(id);
+
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+    if (user.id !== id) throw new ForbiddenException('You are not allowed to access this resource');
 
     if (updateUserDto.password) {
       const hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
       updateUserDto.password = hashedPassword;
     }
-    return this.usersRepository.save({ ...user });
+
+    const updateUser = await this.usersRepository.save({ ...user, ...updateUserDto });
+    if (!updateUser) throw new BadRequestException('Update user failed');
+
+    return updateUser;
   }
 
   async toggleActive(id: string): Promise<User> {
     const user = await this.findOne(id);
+
+    if (user.id !== id) throw new ForbiddenException('You are not allowed to access this resource');
     user.isActive = !user.isActive;
+
     return this.usersRepository.save(user);
   }
 }

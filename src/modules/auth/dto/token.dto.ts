@@ -1,5 +1,5 @@
 export interface TokenDto {
-  id: string;
+  sub: string;
   iat: number;
   exp: number;
   isGlobalLogOut?: string;

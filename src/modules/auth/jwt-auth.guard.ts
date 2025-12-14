@@ -63,7 +63,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
         );
       }
 
-      const user = await this.usersService.findOne(tokenData.id);
+      const user = await this.usersService.findOne(tokenData.sub);
       if (!user) throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 
       request.user = user;

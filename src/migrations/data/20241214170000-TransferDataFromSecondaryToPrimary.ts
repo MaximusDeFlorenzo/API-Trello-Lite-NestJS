@@ -68,7 +68,7 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
             for (const project of projects) {
                 const projectWithMetadata = withMigrationMetadata(project);
                 await queryRunner.query(
-                    `INSERT IGNORE INTO \`projects\` (\`id\`, \`name\`, \`description\`, \`is_active\`, \`createdAt\`, \`createdById\`, \`updatedAt\`, \`updatedById\`, \`deletedAt\`, \`deletedById\`, \`is_migration\`, \`migrated_at\`)
+                    `INSERT IGNORE INTO \`projects\` (\`id\`, \`name\`, \`description\`, \`is_active\`, \`createdAt\`, \`createdBy\`, \`updatedAt\`, \`updatedBy\`, \`deletedAt\`, \`deletedBy\`, \`is_migration\`, \`migrated_at\`)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         project.id,
@@ -76,11 +76,11 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
                         project.description,
                         project.is_active,
                         project.createdAt,
-                        project.createdById,
+                        project.createdBy,
                         project.updatedAt,
-                        project.updatedById,
+                        project.updatedBy,
                         project.deletedAt,
-                        project.deletedById,
+                        project.deletedBy,
                         projectWithMetadata.is_migration,
                         projectWithMetadata.migrated_at
                     ]
