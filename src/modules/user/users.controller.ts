@@ -7,13 +7,15 @@ import {
     Req,
     Patch,
     Get,
+    Query,
+    Param,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { User } from 'libs/model/entities/user.entity';
 import { CurrentUser } from '../auth/current-user.context';
 import { UserService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ListUserInput } from './dto/list-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Controller('user')
 export class UserController {
@@ -23,30 +25,37 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async list(
-        @CurrentUser() currentUser: { user: User }, @Body() listUserInput: ListUserInput) {
-        return this.userService.findAll(listUserInput);
+        @CurrentUser() currentUser: User,
+        @Query() listUserInput: ListUserInput
+    ) {
+        return this.userService.findAll(listUserInput, currentUser);
     }
 
-    // @Get('register')
-    // @HttpCode(HttpStatus.CREATED)
-    // async register(@Body() registerDto: CreateUserInput) {
-    //     return this.userService.register(registerDto);
-    // }
+    @Get(':id')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async findOne(
+        @Param('id') id: string
+    ) {
+        return this.userService.findOne(id);
+    }
 
-    // @Patch('refresh')
-    // @UseGuards(JwtAuthGuard)
-    // @HttpCode(HttpStatus.OK)
-    // async refresh(
-    //     @CurrentUser() currentUser: { user: User }) {
-    //     return this.userService.refreshToken(currentUser.user);
-    // }
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async update(
+        @Param('id') id: string,
+        @Body() updateUserDto: UpdateUserInput
+    ) {
+        return this.userService.update(id, updateUserDto);
+    }
 
-    // @Patch('logout')
-    // @UseGuards(JwtAuthGuard)
-    // @HttpCode(HttpStatus.OK)
-    // async logout(@Req() request: Request) {
-    //     const token = request.headers.authorization;
-    //     if (!token) throw new UnauthorizedException('No token provided');
-    //     return this.userService.logout(token);
-    // }
+    @Patch(':id/toggle-active')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async toggleActive(
+        @Param('id') id: string
+    ) {
+        return this.userService.toggleActive(id);
+    }
 }

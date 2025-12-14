@@ -9,6 +9,9 @@ import { User } from 'libs/model/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { ListUserInput } from './dto/list-user.input';
+import { FindOptionsWhere, ILike } from 'typeorm';
+import { ListUserResponse } from './dto/list-user.dto';
 
 @Injectable()
 export class UserService {
@@ -26,25 +29,38 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  async findAll(query: any) {
-    const { page = 1, limit = 10, ...filters } = query;
+  async findAll(query: ListUserInput, user: User): Promise<ListUserResponse> {
+    const { page = 1, limit = 10, sort_by = 'createdAt', sort_direction = 'desc', search, is_active } = query;
     const skip = (page - 1) * limit;
     const take = limit;
 
+    const where: FindOptionsWhere<User> = {
+      ...(search && {
+        email: ILike(`%${search}%`),
+        name: ILike(`%${search}%`),
+        username: ILike(`%${search}%`),
+      }),
+      ...(user.id && { id: user.id }),
+      ...(is_active !== undefined && { is_active }),
+    };
+
+    const order = {
+      [sort_by]: sort_direction.toUpperCase() as 'ASC' | 'DESC'
+    };
+
     const [users, total] = await this.usersRepository.findAndCount({
-      where: filters,
+      where,
       skip,
       take,
+      order,
     });
 
     return {
       data: users,
-      meta: {
-        total,
-        page: +page,
-        limit: +limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      total,
+      page: +page,
+      limit: +limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -66,22 +82,18 @@ export class UserService {
   async update(
     id: string,
     updateUserDto: UpdateUserInput,
-    currentUser: any,
   ): Promise<User> {
-    if (currentUser.id !== id && !currentUser.isAdmin) {
-      throw new ForbiddenException('You can only update your own profile');
-    }
-
     const user = await this.findOne(id);
-    Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+
+    if (updateUserDto.password) {
+      const hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
+      updateUserDto.password = hashedPassword;
+    }
+    return this.usersRepository.save({ ...user });
   }
 
-  async toggleActive(id: string, currentUser: any): Promise<User> {
-    if (!currentUser.isAdmin) {
-      throw new ForbiddenException('Only admins can toggle user status');
-    }
-
+  async toggleActive(id: string): Promise<User> {
     const user = await this.findOne(id);
     user.isActive = !user.isActive;
     return this.usersRepository.save(user);

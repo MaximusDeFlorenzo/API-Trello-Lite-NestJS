@@ -1,18 +1,12 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { User } from "libs/model/entities/user.entity";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { User } from 'libs/model/entities';
 
 interface HttpRequest {
-  user?: {
-    user: User;
-    permissions: string[];
-  };
+  user?: User;
 }
 
 export const CurrentUser = createParamDecorator(
-  (
-    _data: unknown,
-    context: ExecutionContext,
-  ): { user: User; permissions: string[] } | undefined => {
+  (_data: unknown, context: ExecutionContext): User | undefined => {
     const request = context.switchToHttp().getRequest<HttpRequest>();
     return request.user;
   },

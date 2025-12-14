@@ -14,6 +14,14 @@ export class PaginationInput {
   search?: string;
 
   @IsOptional()
+  @IsString()
+  sort_by?: string;
+
+  @IsOptional()
+  @IsString()
+  sort_direction?: 'asc' | 'desc';
+
+  @IsOptional()
   @IsBoolean()
   is_active?: boolean;
 
