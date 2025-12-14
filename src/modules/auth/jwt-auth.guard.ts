@@ -8,47 +8,22 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Reflector } from "@nestjs/core";
-import { GqlExecutionContext } from "@nestjs/graphql";
 import { AuthService } from "./auth.service";
-import { UsersService } from "src/modules/user/users.service";
 import { TokenDto } from "./dto/token.dto";
-import { SettingsService } from "src/modules/settings/settings.service";
 import { User } from "libs/model/entities/user.entity";
+import { UserService } from "../user/users.service";
 
 const IS_PUBLIC_KEY = "isPublic";
 export const Public = (): CustomDecorator => SetMetadata(IS_PUBLIC_KEY, true);
-
-interface GraphQLContext {
-  req?: {
-    headers?: {
-      authorization?: string;
-    };
-    user?: {
-      user: User;
-      permissions: string[];
-    };
-  };
-  connection?: {
-    context?: {
-      user?: {
-        user: User;
-        permissions: string[];
-      };
-    };
-  };
-  user?: unknown;
-}
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
   constructor(
     private readonly authService: AuthService,
     private readonly reflector: Reflector,
-    private readonly usersService: UsersService,
-    private readonly settingsService: SettingsService,
+    private readonly usersService: UserService,
   ) {
     super();
-    this.canActivate = this.canActivate.bind(this) as this["canActivate"];
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -59,84 +34,42 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 
     if (isPublic) return true;
 
-    const gqlContext = GqlExecutionContext.create(context);
-    const rawContext: unknown = gqlContext.getContext();
-    const ctx: GraphQLContext = rawContext as GraphQLContext;
-    const request = context.switchToHttp().getRequest<{
-      headers?: { authorization?: string };
-    }>();
+    const request = context.switchToHttp().getRequest();
+    const token = request.headers?.authorization;
 
-    if (ctx?.req?.user) return true;
-
-    if (ctx?.user && typeof ctx.user === "object" && "user" in ctx.user) {
-      if (!ctx.req)
-        ctx.req = {
-          headers: {},
-          user: ctx.user as { user: User; permissions: string[] },
-        };
-      else ctx.req.user = ctx.user as { user: User; permissions: string[] };
-      return true;
-    }
-
-    if (ctx?.connection?.context?.user) {
-      if (!ctx.req)
-        ctx.req = { headers: {}, user: ctx.connection.context.user };
-      else ctx.req.user = ctx.connection.context.user;
-      return true;
+    if (!token) {
+      throw new HttpException(
+        "Authorization token is required",
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     try {
-      const token: string | undefined =
-        ctx?.req?.headers?.authorization ?? request?.headers?.authorization;
-
-      if (!token) {
-        throw new HttpException(
-          "You must provide token!",
-          HttpStatus.FORBIDDEN,
-        );
-      }
-
       const cleanToken = token.replace(/^Bearer\s+/i, "");
       const tokenData: TokenDto = await this.authService.verify(cleanToken);
 
-      const currentGlobalLogoutVersion =
-        await this.settingsService.getGlobalLogoutVersion();
-      const tokenGlobalLogoutVersion = tokenData.isGlobalLogOut;
-
-      if (
-        !tokenGlobalLogoutVersion ||
-        tokenGlobalLogoutVersion !== currentGlobalLogoutVersion
-      ) {
+      if (!tokenData) {
         throw new HttpException(
           "Token has been invalidated due to global logout",
           HttpStatus.UNAUTHORIZED,
         );
       }
 
-      const user = await this.usersService.findOneById(tokenData.id);
+      const user = await this.usersService.findOne(tokenData.id);
+      if (!user) throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 
-      if (!user) {
-        throw new HttpException("User not found!", HttpStatus.FORBIDDEN);
-      }
-
-      const permissions = user.permissions?.map((p) => p.name) || [];
-
-      const userContext = {
-        user,
-        permissions,
-      };
-
-      if (!ctx.req) {
-        ctx.req = {
-          headers: request?.headers || {},
-          user: userContext,
-        };
-      } else ctx.req.user = userContext;
-
+      request.user = user;
       return true;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Forbidden";
-      throw new HttpException(message, HttpStatus.FORBIDDEN);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Authentication failed";
+      throw new HttpException(message, HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  handleRequest(err: any, user: any) {
+    if (err || !user) {
+      throw err || new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+    return user;
   }
 }

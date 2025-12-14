@@ -1,32 +1,28 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { GqlExecutionContext } from "@nestjs/graphql";
+import { Request } from 'express';
 import { User } from "libs/model/entities/user.entity";
-
-type RequestWithUser = {
-  user?: unknown;
-};
 
 function isUser(obj: unknown): obj is User {
   return typeof obj === "object" && obj !== null && "email" in obj;
 }
 
-function isWrappedUser(obj: unknown): obj is { user: User } {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "user" in obj &&
-    isUser((obj as { user: unknown }).user)
-  );
-}
-
 export const CurrentUser = createParamDecorator(
   (_data: unknown, context: ExecutionContext): User | undefined => {
-    const gqlContext = GqlExecutionContext.create(context);
-    const { req } = gqlContext.getContext<{ req: RequestWithUser }>();
-    const rawUser = req.user;
+    const request = context.switchToHttp().getRequest<Request>();
+    const user = request.user as User | { user: User } | undefined;
 
-    if (isUser(rawUser)) return rawUser;
-    if (isWrappedUser(rawUser)) return rawUser.user;
+    if (!user) {
+      return undefined;
+    }
+
+    if (isUser(user)) {
+      return user;
+    }
+
+    if (user && typeof user === 'object' && 'user' in user && isUser(user.user)) {
+      return user.user;
+    }
+
     return undefined;
   },
 );

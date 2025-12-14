@@ -1,20 +1,26 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
+import { ValidationPipe } from "@nestjs/common";
 
 process.env.TZ = "Asia/Jakarta";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('api');
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      disableErrorMessages: false,
+    })
+  );
+
   app.enableCors({
     origin: [
-      "https://dashboard.det9234.com",
-      "http://localhost:3000",
-      "http://localhost:8081",
-      "http://localhost:3030",
-      "https://portal.det9234.com",
-      "https://api-dev.det9234.com",
-      "https://dashboard-dev.det9234.com",
-      "https://portal-dev.det9234.com",
+      "http://localhost:8000",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

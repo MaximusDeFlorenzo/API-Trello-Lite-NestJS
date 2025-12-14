@@ -1,33 +1,14 @@
-import { forwardRef, Module } from "@nestjs/common";
-
-import { MongooseModule } from "@nestjs/mongoose";
-import { UsersService } from "./users.service";
-import { UsersResolver } from "./users.resolver";
-import { UsersController } from "./users.controller";
-import { User, UserSchema } from "libs/model/entities/user.entity";
-import { ConfigModule } from "../../config/config.module";
-import { AuthModule } from "../auth/auth.module";
-import { MailerModule } from "@nestjs-modules/mailer";
-import { LogModule } from "../log/log.module";
-import { PermissionModule } from "../permission/permission.module";
-import { MinioModule } from "../minio/minio.module";
-import { SettingsModule } from "../settings/settings.module";
-import { N8NModule } from "../n8n";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserService } from './users.service';
+import { User } from 'libs/model/entities/user.entity';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    forwardRef(() => AuthModule),
-    forwardRef(() => ConfigModule),
-    forwardRef(() => PermissionModule),
-    LogModule,
-    MailerModule,
-    MinioModule,
-    N8NModule,
-    SettingsModule,
+  imports: [TypeOrmModule.forFeature([User])],
+  // controllers: [UserController],
+  providers: [
+    UserService,
   ],
-  controllers: [UsersController],
-  providers: [UsersResolver, UsersService],
-  exports: [UsersService, MongooseModule],
+  exports: [UserService],
 })
-export class UsersModule {}
+export class UsersModule { }
