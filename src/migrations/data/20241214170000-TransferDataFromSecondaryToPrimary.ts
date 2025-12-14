@@ -19,7 +19,7 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
             port: configService.getNumber('DB_PORT_SECONDARY', 3307),
             username: configService.get('DB_USERNAME_SECONDARY', 'root'),
             password: configService.get('DB_PASSWORD_SECONDARY', ''),
-            database: configService.get('DB_DATABASE_SECONDARY', 'trelo_nestjs_secondary'),
+            database: configService.get('DB_DATABASE_SECONDARY', 'trelo_laravel'),
             synchronize: false,
             logging: process.env.NODE_ENV === 'development',
         });
@@ -147,20 +147,23 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
             for (const member of members) {
                 const memberWithMetadata = withMigrationMetadata(member);
                 await queryRunner.query(
-                    `INSERT IGNORE INTO \`members\` (\`id\`, \`is_admin\`, \`is_active\`, \`createdAt\`, \`updatedAt\`, \`deletedAt\`, \`userId\`, \`projectId\`, \`createdById\`, \`updatedById\`, \`deletedById\`, \`is_migration\`, \`migrated_at\`)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT IGNORE INTO \`members\` (
+                        \`id\`, \`user\`, \`project\`, \`is_admin\`, \`is_active\`, 
+                        \`createdAt\`, \`createdBy\`, \`updatedAt\`, \`updatedBy\`, 
+                        \`deletedAt\`, \`deletedBy\`, \`is_migration\`, \`migrated_at\`
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         member.id,
+                        member.user || member.userId,
+                        member.project || member.projectId,
                         member.is_admin,
                         member.is_active,
                         member.createdAt,
+                        member.createdBy || member.createdById,
                         member.updatedAt,
+                        member.updatedBy || member.updatedById,
                         member.deletedAt,
-                        member.userId,
-                        member.projectId,
-                        member.createdById,
-                        member.updatedById,
-                        member.deletedById,
+                        member.deletedBy || member.deletedById,
                         memberWithMetadata.is_migration,
                         memberWithMetadata.migrated_at
                     ]
