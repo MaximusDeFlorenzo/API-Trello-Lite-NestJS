@@ -106,7 +106,7 @@ export class UserService {
     const user = await this.findOne(id);
 
     if (user.id !== id) throw new ForbiddenException('You are not allowed to access this resource');
-    user.isActive = !user.isActive;
+    user.is_active = !user.is_active;
 
     return this.usersRepository.save(user);
   }

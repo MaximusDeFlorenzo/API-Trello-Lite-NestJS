@@ -47,19 +47,23 @@ export class ProjectController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async update(
         @Param('id') id: string,
-        @Body() updateProjectDto: UpdateProjectInput
+        @Body() updateProjectDto: UpdateProjectInput,
+        @CurrentUser() currentUser: User
     ) {
-        return this.projectService.update(id, updateProjectDto);
+        return this.projectService.update(id, updateProjectDto, currentUser);
     }
 
     @Patch(':id/toggle-active')
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     async toggleActive(
-        @Param('id') id: string
+        @Param('id') id: string,
+        @CurrentUser() currentUser: User
     ) {
-        return this.projectService.toggleActive(id);
+        return this.projectService.toggleActive(id, currentUser);
     }
 }

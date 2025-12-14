@@ -18,7 +18,7 @@ export class Task {
     code: string;
 
     @Column({ name: 'is_active', default: true })
-    isActive: boolean;
+    is_active: boolean;
 
     @Column({ name: 'due_date', nullable: true })
     dueDate: Date;

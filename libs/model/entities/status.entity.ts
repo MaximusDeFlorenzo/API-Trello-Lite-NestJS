@@ -15,7 +15,7 @@ export class Status {
     sequence: number;
 
     @Column({ name: 'is_active', default: true })
-    isActive: boolean;
+    is_active: boolean;
 
     @Column({ name: 'is_general', default: false })
     isGeneral: boolean;

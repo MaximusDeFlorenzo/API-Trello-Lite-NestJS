@@ -16,7 +16,7 @@ export class Project {
     description: string;
 
     @Column({ name: 'is_active', default: true })
-    isActive: boolean;
+    is_active: boolean;
 
     @CreateDateColumn({ name: 'createdAt' })
     createdAt: Date;
