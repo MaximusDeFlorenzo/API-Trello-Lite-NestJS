@@ -1,45 +1,39 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
-import { Project } from './project.entity';
 import { Task } from './task.entity';
+import { Project } from './project.entity';
 
 @Entity('statuses')
 export class Status {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ unique: true })
+    @Column()
     name: string;
 
     @Column({ default: 0 })
     sequence: number;
 
-    @Column({ name: 'is_active', default: true })
+    @Column({ default: true })
     is_active: boolean;
 
-    @Column({ name: 'is_general', default: false })
-    isGeneral: boolean;
-
-    @CreateDateColumn({ name: 'createdAt' })
-    createdAt: Date;
+    @Column({ default: false })
+    is_general: boolean;
 
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'createdBy' })
     createdBy: User;
 
-    @UpdateDateColumn({ name: 'updatedAt', nullable: true })
-    updatedAt: Date;
-
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'updatedBy' })
     updatedBy: User;
 
-    @DeleteDateColumn({ name: 'deletedAt', nullable: true })
-    deletedAt: Date;
-
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'deletedBy' })
     deletedBy: User;
 
-    // Relations
-    @ManyToOne(() => Project, project => project.statuses, { nullable: true })
+    @ManyToOne(() => Project, { nullable: true })
+    @JoinColumn({ name: 'project' })
     project: Project;
 
     @OneToMany(() => Task, task => task.status)

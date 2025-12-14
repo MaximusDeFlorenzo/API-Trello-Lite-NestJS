@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
 import { Status } from './status.entity';
@@ -23,31 +23,27 @@ export class Task {
     @Column({ name: 'due_date', nullable: true })
     dueDate: Date;
 
-    @CreateDateColumn({ name: 'createdAt' })
-    createdAt: Date;
-
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'createdBy' })
     createdBy: User;
 
-    @UpdateDateColumn({ name: 'updatedAt', nullable: true })
-    updatedAt: Date;
-
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'updatedBy' })
     updatedBy: User;
 
-    @DeleteDateColumn({ name: 'deletedAt', nullable: true })
-    deletedAt: Date;
-
     @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'deletedBy' })
     deletedBy: User;
 
-    // Relations
-    @ManyToOne(() => Status, status => status.tasks, { nullable: true })
+    @ManyToOne(() => Status, { nullable: true })
+    @JoinColumn({ name: 'status' })
     status: Status;
 
-    @ManyToOne(() => Project, project => project.tasks, { nullable: true })
+    @ManyToOne(() => Project, { nullable: true })
+    @JoinColumn({ name: 'project' })
     project: Project;
 
-    @ManyToOne(() => User, user => user.assignedTasks, { nullable: true })
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'assignee' })
     assignee: User;
 }

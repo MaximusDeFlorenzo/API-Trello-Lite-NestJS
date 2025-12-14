@@ -92,7 +92,7 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
             for (const status of statuses) {
                 const statusWithMetadata = withMigrationMetadata(status);
                 await queryRunner.query(
-                    `INSERT IGNORE INTO \`statuses\` (\`id\`, \`name\`, \`sequence\`, \`is_active\`, \`is_general\`, \`createdAt\`, \`createdById\`, \`updatedAt\`, \`updatedById\`, \`deletedAt\`, \`deletedById\`, \`projectId\`, \`is_migration\`, \`migrated_at\`)
+                    `INSERT IGNORE INTO \`statuses\` (\`id\`, \`name\`, \`sequence\`, \`is_active\`, \`is_general\`, \`createdAt\`, \`createdBy\`, \`updatedAt\`, \`updatedBy\`, \`deletedAt\`, \`deletedBy\`, \`project\`, \`is_migration\`, \`migrated_at\`)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         status.id,
@@ -101,12 +101,12 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
                         status.is_active,
                         status.is_general,
                         status.createdAt,
-                        status.createdById,
+                        status.createdBy,
                         status.updatedAt,
-                        status.updatedById,
+                        status.updatedBy,
                         status.deletedAt,
-                        status.deletedById,
-                        status.projectId,
+                        status.deletedBy,
+                        status.project,
                         statusWithMetadata.is_migration,
                         statusWithMetadata.migrated_at
                     ]
@@ -118,7 +118,7 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
             for (const task of tasks) {
                 const taskWithMetadata = withMigrationMetadata(task);
                 await queryRunner.query(
-                    `INSERT IGNORE INTO \`tasks\` (\`id\`, \`title\`, \`description\`, \`code\`, \`is_active\`, \`due_date\`, \`createdAt\`, \`createdById\`, \`updatedAt\`, \`updatedById\`, \`deletedAt\`, \`deletedById\`, \`statusId\`, \`projectId\`, \`assigneeId\`, \`is_migration\`, \`migrated_at\`)
+                    `INSERT IGNORE INTO \`tasks\` (\`id\`, \`title\`, \`description\`, \`code\`, \`is_active\`, \`due_date\`, \`createdAt\`, \`createdBy\`, \`updatedAt\`, \`updatedBy\`, \`deletedAt\`, \`deletedBy\`, \`status\`, \`project\`, \`assignee\`, \`is_migration\`, \`migrated_at\`)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         task.id,
@@ -128,14 +128,14 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
                         task.is_active,
                         task.due_date,
                         task.createdAt,
-                        task.createdById,
+                        task.createdBy,
                         task.updatedAt,
-                        task.updatedById,
+                        task.updatedBy,
                         task.deletedAt,
-                        task.deletedById,
-                        task.statusId,
-                        task.projectId,
-                        task.assigneeId,
+                        task.deletedBy,
+                        task.status,
+                        task.project,
+                        task.assignee,
                         taskWithMetadata.is_migration,
                         taskWithMetadata.migrated_at
                     ]
@@ -154,16 +154,16 @@ export class TransferDataFromSecondaryToPrimary1712345600000 implements Migratio
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         member.id,
-                        member.user || member.userId,
-                        member.project || member.projectId,
+                        member.user,
+                        member.project,
                         member.is_admin,
                         member.is_active,
                         member.createdAt,
-                        member.createdBy || member.createdById,
+                        member.createdBy,
                         member.updatedAt,
-                        member.updatedBy || member.updatedById,
+                        member.updatedBy,
                         member.deletedAt,
-                        member.deletedBy || member.deletedById,
+                        member.deletedBy,
                         memberWithMetadata.is_migration,
                         memberWithMetadata.migrated_at
                     ]
