@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ProjectModule } from './modules/project/project.module';
 import { MemberModule } from './modules/member/member.module';
 import { TaskModule } from './modules/tasks/tasks.module';
+import { StatusModule } from './modules/status/status.module';
 
 @Module({
     imports: [
@@ -16,6 +17,7 @@ import { TaskModule } from './modules/tasks/tasks.module';
         MemberModule,
         ProjectModule,
         TaskModule,
+        StatusModule,
     ],
     controllers: [],
     providers: [],

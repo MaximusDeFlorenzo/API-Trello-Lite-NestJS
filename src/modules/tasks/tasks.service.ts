@@ -28,22 +28,14 @@ export class TaskService {
   ) { }
 
   async create(createTaskDto: CreateTasksInput, projectId: string, currentUser: User): Promise<Task> {
-    // Check if the assignee exists
     const assignee = await this.userRepository.findOne({ where: { id: createTaskDto.assignee } });
-    if (!assignee) {
-      throw new NotFoundException('Assignee not found');
-    }
+    if (!assignee) throw new NotFoundException('Assignee not found');
 
-    // Check if the project exists
     const project = await this.projectRepository.findOne({ where: { id: projectId } });
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
+    if (!project) throw new NotFoundException('Project not found');
 
     const status = await this.statusRepository.findOne({ where: { id: projectId } });
-    if (!status) {
-      throw new NotFoundException('Status not found');
-    }
+    if (!status) throw new NotFoundException('Status not found');
 
     const task = new Task();
     task.title = createTaskDto.title;
@@ -54,7 +46,6 @@ export class TaskService {
     task.createdBy = currentUser;
     task.assignee = assignee;
 
-    // Save the task
     return this.taskRepository.save(task);
   }
 
@@ -64,12 +55,14 @@ export class TaskService {
     const take = limit;
 
     const qb = this.taskRepository
-      .createQueryBuilder('member')
-      .leftJoinAndSelect('member.project', 'project')
-      .leftJoinAndSelect('member.user', 'user')
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.project', 'project')
+      .leftJoinAndSelect('task.assignee', 'assignee')
+      .leftJoinAndSelect('task.status', 'status')
       .leftJoinAndSelect('project.createdBy', 'createdBy')
       .leftJoinAndSelect('project.updatedBy', 'updatedBy')
-      .where('user.id = :userId', { userId: currentUser.id })
+      .where('assignee.id = :assigneeId', { assigneeId: currentUser.id })
+      .orWhere('createdBy.id = :createdById', { createdById: currentUser.id })
       .andWhere('project.id = :projectId', { projectId })
       .skip(skip)
       .take(take)
@@ -90,7 +83,7 @@ export class TaskService {
   }
 
   async findOne(id: string): Promise<Task> {
-    const task = await this.taskRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deletedBy', 'user', 'project'] });
+    const task = await this.taskRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deletedBy', 'assignee', 'project', 'status'] });
 
     if (!task) throw new NotFoundException(`Task with ID ${id} not found`);
     if (task.id !== id) throw new ForbiddenException('You are not allowed to access this resource');
@@ -121,7 +114,7 @@ export class TaskService {
     await this.taskRepository.save(updatedTask);
     const updated = await this.taskRepository.findOne({
       where: { id },
-      relations: ['createdBy', 'updatedBy', 'deletedBy', 'user', 'project']
+      relations: ['createdBy', 'updatedBy', 'deletedBy', 'assignee', 'project', 'status']
     });
 
     if (!updated) throw new NotFoundException(`Task with ID ${id} not found after update`);

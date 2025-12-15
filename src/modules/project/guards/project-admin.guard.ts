@@ -10,7 +10,7 @@ type RequestWithUser = Request & { user: User };
 export class ProjectAdminGuard implements CanActivate {
     constructor(
         @InjectRepository(Member)
-        private memberRepository: Repository<Member>,
+        private memberRepository: Repository<Member>
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,7 +28,7 @@ export class ProjectAdminGuard implements CanActivate {
         if (!member) {
             member = await this.memberRepository.findOne({
                 where: { project: { id: projectId } },
-                relations: ['project'],
+                relations: ['project', 'user'],
             });
         }
 

@@ -12,37 +12,36 @@ import {
 } from '@nestjs/common';
 import { User } from 'libs/model/entities/user.entity';
 import { CurrentUser } from '../auth/current-user.context';
-import { TaskService } from './tasks.service';
+import { StatusService } from './status.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ListTasksInput } from './dto/list-tasks.input';
-import { UpdateTasksInput } from './dto/update-tasks.input';
-import { CreateTasksInput } from './dto/create-tasks.input';
+import { ListStatusInput } from './dto/list-status.input';
+import { UpdateStatusInput } from './dto/update-status.input';
+import { CreateStatusInput } from './dto/create-status.input';
 import { ProjectAdminGuard } from '../project/guards/project-admin.guard';
-import { TaskOwnerGuard } from './guard/task-owner.guard';
 
-@Controller('task')
-@UseGuards(JwtAuthGuard, ProjectAdminGuard, TaskOwnerGuard)
-export class TaskController {
-    constructor(private readonly taskService: TaskService) { }
+@Controller('status')
+@UseGuards(JwtAuthGuard, ProjectAdminGuard)
+export class StatusController {
+    constructor(private readonly statusService: StatusService) { }
 
     @Post('create')
     @HttpCode(HttpStatus.CREATED)
     async create(
-        @Body() createTaskInput: CreateTasksInput,
+        @Body() createStatusInput: CreateStatusInput,
         @CurrentUser() currentUser: User,
         @Query('project') project: string
     ) {
-        return this.taskService.create(createTaskInput, project, currentUser);
+        return this.statusService.create(createStatusInput, project, currentUser);
     }
 
     @Get('list/:id')
     @HttpCode(HttpStatus.OK)
     async list(
         @CurrentUser() currentUser: User,
-        @Body() listTasksInput: ListTasksInput,
+        @Body() listStatusInput: ListStatusInput,
         @Param('id') project: string
     ) {
-        return this.taskService.findAll(listTasksInput, currentUser, project);
+        return this.statusService.findAll(listStatusInput, currentUser, project);
     }
 
     @Get(':id')
@@ -50,17 +49,17 @@ export class TaskController {
     async findOne(
         @Param('id') id: string
     ) {
-        return this.taskService.findOne(id);
+        return this.statusService.findOne(id);
     }
 
     @Patch(':id')
     @HttpCode(HttpStatus.OK)
     async update(
         @Param('id') id: string,
-        @Body() updateTaskDto: UpdateTasksInput,
+        @Body() updateStatusDto: UpdateStatusInput,
         @CurrentUser() currentUser: User
     ) {
-        return this.taskService.update(id, updateTaskDto, currentUser);
+        return this.statusService.update(id, updateStatusDto, currentUser);
     }
 
     @Patch(':id/toggle-active')
@@ -69,6 +68,6 @@ export class TaskController {
         @Param('id') id: string,
         @CurrentUser() currentUser: User
     ) {
-        return this.taskService.toggleActive(id, currentUser);
+        return this.statusService.toggleActive(id, currentUser);
     }
 }
