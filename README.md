@@ -79,16 +79,15 @@ A RESTful API for a Trello-like project management application built with NodeJS
    DB_PASSWORD=your_db_password
    ```
 
-<!-- Database for migration -->
-
-DB_CONNECTION_SECONDARY=mysql
-DB_HOST_SECONDARY=127.0.0.1
-DB_PORT_SECONDARY=3306
-DB_DATABASE_SECONDARY=trello_lite
-DB_USERNAME_SECONDARY=your_db_username
-DB_PASSWORD_SECONDARY=your_db_password
-
-````
+   ```env
+   # Database for migration
+   DB_CONNECTION_SECONDARY=mysql
+   DB_HOST_SECONDARY=127.0.0.1
+   DB_PORT_SECONDARY=3306
+   DB_DATABASE_SECONDARY=trello_lite
+   DB_USERNAME_SECONDARY=your_db_username
+   DB_PASSWORD_SECONDARY=your_db_password
+   ```
 
 6. **Run Migrations**
 
@@ -96,7 +95,7 @@ DB_PASSWORD_SECONDARY=your_db_password
 npx typeorm-ts-node-commonjs migration:run -d src/table-source.ts
 npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts
 
-````
+```
 
 7. **Revert Migration**
 
